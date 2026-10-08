@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Convite Especial</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #090b16;
+      --wine: #c99a35;
+      --wine-dark: #805713;
+      --paper: #f4dfab;
+      --gold: #e2b84f;
+      --text: #321c25;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow: hidden;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background:
+        radial-gradient(
+          circle at center,
+          #29253d 0%,
+          #121321 45%,
+          var(--bg) 100%
+        );
+
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    /* ========================================
+       FUNDO
+    ======================================== */
+
+    .background {
+      position: fixed;
+      inset: 0;
+
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+
+      width: 3px;
+      height: 3px;
+
+      border-radius: 50%;
+
+      background: rgba(255, 220, 150, .7);
+
+      box-shadow:
+        0 0 12px rgba(255, 210, 130, .8);
+
+      animation:
+        float 7s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0% {
+        transform:
+          translateY(0)
+          scale(.5);
+
+        opacity: .1;
+      }
+
+      50% {
+        transform:
+          translateY(-80px)
+          scale(1.5);
+
+        opacity: 1;
+      }
+
+      100% {
+        transform:
+          translateY(-150px)
+          scale(.5);
+
+        opacity: 0;
+      }
+    }
+
+    /* ========================================
+       CENA
+    ======================================== */
+
+    .scene {
+      position: relative;
+
+      width: 420px;
+      height: 520px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      perspective: 1600px;
+    }
+
+    /* ========================================
+       ENVELOPE
+    ======================================== */
+
+    .envelope {
+      position: relative;
+
+      width: 340px;
+      height: 230px;
+
+      transform-style: preserve-3d;
+
+      transform:
+        rotateX(7deg)
+        rotateY(0deg);
+
+      transition:
+        transform 1s cubic-bezier(.2,.8,.2,1);
+
+      cursor: pointer;
+    }
+
+    .envelope-body {
+      position: absolute;
+
+      inset: 0;
+
+      border-radius: 6px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #e0b64d,
+          var(--wine) 50%,
+          var(--wine-dark)
+        );
+
+      box-shadow:
+        0 30px 60px rgba(0,0,0,.5),
+        inset 0 0 30px rgba(0,0,0,.15);
+
+      overflow: hidden;
+    }
+
+    .envelope-body::before {
+      content: "";
+
+      position: absolute;
+
+      inset: 0;
+
+      background:
+        linear-gradient(
+          35deg,
+          transparent 49.5%,
+          rgba(255,255,255,.12) 50%,
+          transparent 50.5%
+        ),
+        linear-gradient(
+          -35deg,
+          transparent 49.5%,
+          rgba(0,0,0,.15) 50%,
+          transparent 50.5%
+        );
+    }
+
+    /* ========================================
+       CARTA
+    ======================================== */
+
+    .letter {
+      position: absolute;
+
+      /*
+        IMPORTANTE:
+
+        A carta agora fica centralizada no envelope.
+        Isso faz a animação partir do centro.
+      */
+
+      left: 50%;
+      top: 50%;
+
+      width: 290px;
+      height: 205px;
+
+      padding: 0;
+
+      transform:
+        translate(-50%, -50%)
+        translateZ(20px)
+        scale(.82);
+
+      transform-origin: center center;
+
+      background: transparent;
+
+      color: var(--text);
+
+      box-shadow: none;
+
+      z-index: 2;
+
+      opacity: .95;
+
+      transition:
+        transform 1.5s cubic-bezier(.2,.8,.2,1),
+        width 1.4s cubic-bezier(.2,.8,.2,1),
+        height 1.4s cubic-bezier(.2,.8,.2,1),
+        padding 1.4s ease,
+        border-radius 1.4s ease,
+        opacity .8s ease;
+    }
+
+    .letter-content {
+      width: 100%;
+      height: 100%;
+    }
+
+    .letter-image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .letter-content {
+      opacity: 0;
+
+      transform:
+        translateY(20px);
+
+      transition:
+        opacity .8s ease 1s,
+        transform .8s ease 1s;
+    }
+
+    .letter h1 {
+      color: var(--wine);
+
+      font-size: 25px;
+
+      margin-bottom: 16px;
+    }
+
+    .letter p {
+      font-size: 15px;
+
+      line-height: 1.7;
+    }
+
+    /* ========================================
+       ABA DO ENVELOPE
+    ======================================== */
+
+    .flap {
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 0;
+      height: 0;
+
+      border-left:
+        170px solid transparent;
+
+      border-right:
+        170px solid transparent;
+
+      border-top:
+        125px solid #e0b64d;
+
+      transform-origin:
+        top center;
+
+      transform:
+        translateZ(30px)
+        rotateX(0deg);
+
+      transition:
+        transform 1s cubic-bezier(.2,.8,.2,1);
+
+      z-index: 5;
+
+      filter:
+        drop-shadow(
+          0 4px 4px rgba(0,0,0,.15)
+        );
+    }
+
+    /* ========================================
+       SELO
+    ======================================== */
+
+    .seal {
+      position: absolute;
+
+      z-index: 10;
+
+      left: 50%;
+      top: 53%;
+
+      width: 54px;
+      height: 54px;
+
+      transform:
+        translate(-50%, -50%)
+        translateZ(45px);
+
+      border-radius: 50%;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background:
+        radial-gradient(
+          circle at 35% 30%,
+          #f3d58d,
+          var(--gold) 50%,
+          #9b6e27
+        );
+
+      color: #6b4215;
+
+      font-size: 22px;
+
+      box-shadow:
+        0 5px 15px rgba(0,0,0,.35),
+        inset 0 2px 5px rgba(255,255,255,.5);
+
+      transition:
+        transform .7s ease,
+        opacity .5s ease;
+    }
+
+    /* ========================================
+       TEXTO INICIAL
+    ======================================== */
+
+    .hint {
+      position: absolute;
+
+      bottom: 25px;
+
+      color:
+        rgba(255,255,255,.7);
+
+      font-size: 13px;
+
+      letter-spacing: 2px;
+
+      text-transform: uppercase;
+
+      animation:
+        pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: .4;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    /* ========================================
+       PRIMEIRO ESTÁGIO:
+       ABRIR ENVELOPE
+    ======================================== */
+
+    .scene.open .flap {
+      transform:
+        translateZ(30px)
+        rotateX(180deg);
+    }
+
+    .scene.open .seal {
+      transform:
+        translate(-50%, -50%)
+        translateZ(45px)
+        scale(.2);
+
+      opacity: 0;
+    }
+
+    /*
+      Carta sai do centro.
+    */
+
+    .scene.open .letter {
+      transform:
+        translate(-50%, -50%)
+        translateZ(100px)
+        scale(1.05);
+
+      opacity: 1;
+    }
+
+    /* ========================================
+       SEGUNDO ESTÁGIO:
+       CARTA EXPANDIDA
+    ======================================== */
+
+    .scene.expanded {
+      position: fixed;
+
+      inset: 0;
+
+      width: 100vw;
+      height: 100vh;
+
+      perspective: none;
+
+      z-index: 100;
+
+      display: block;
+    }
+
+    .scene.expanded .envelope {
+      position: static;
+
+      width: 100%;
+      height: 100%;
+
+      transform: none;
+    }
+
+    .scene.expanded .envelope-body,
+    .scene.expanded .flap,
+    .scene.expanded .seal,
+    .scene.expanded .hint {
+      opacity: 0;
+
+      pointer-events: none;
+    }
+
+    /*
+      A carta começa no centro
+      e cresce igualmente para
+      todos os lados.
+    */
+
+    .scene.expanded .letter {
+      position: fixed;
+
+      left: 50%;
+      top: 50%;
+
+      width:
+        min(900px, 92vw);
+
+      height:
+        min(700px, 88vh);
+
+      padding:
+        clamp(30px, 6vw, 80px);
+
+      border-radius: 6px;
+
+      transform:
+        translate(-50%, -50%)
+        scale(1);
+
+      transform-origin:
+        center center;
+
+      overflow-y: auto;
+
+      box-shadow:
+        0 40px 100px rgba(0,0,0,.55);
+
+      transition:
+        width 1.3s cubic-bezier(.2,.8,.2,1),
+        height 1.3s cubic-bezier(.2,.8,.2,1),
+        padding 1.3s ease,
+        transform 1.3s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .scene.expanded .letter-content {
+      opacity: 1;
+
+      transform:
+        translateY(0);
+    }
+
+    .scene.expanded .letter h1 {
+      font-size:
+        clamp(30px, 5vw, 55px);
+    }
+
+    .scene.expanded .letter p {
+      font-size:
+        clamp(16px, 2vw, 21px);
+    }
+
+    /* ========================================
+       BOTÃO DO NARRADOR
+    ======================================== */
+
+    .narrator {
+      position: fixed;
+
+      left: 50%;
+      bottom: 25px;
+
+      transform:
+        translateX(-50%)
+        translateY(30px);
+
+      z-index: 300;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      gap: 10px;
+
+      padding:
+        13px 22px;
+
+      border: 1px solid
+        rgba(255,255,255,.2);
+
+      border-radius: 999px;
+
+      background:
+        rgba(25,20,30,.85);
+
+      backdrop-filter:
+        blur(12px);
+
+      color: white;
+
+      font-family:
+        Arial, sans-serif;
+
+      font-size: 14px;
+
+      cursor: pointer;
+
+      opacity: 0;
+
+      pointer-events: none;
+
+      transition:
+        opacity .6s ease,
+        transform .6s ease,
+        background .3s ease;
+    }
+
+    /*
+      O botão só aparece quando
+      .narrator-visible é adicionado.
+    */
+
+    .narrator.visible {
+      opacity: 1;
+
+      pointer-events: auto;
+
+      transform:
+        translateX(-50%)
+        translateY(0);
+    }
+
+    .narrator:hover {
+      background:
+        rgba(80,30,50,.95);
+    }
+
+    .narrator.playing {
+      background:
+        rgba(141,32,61,.95);
+    }
+
+    /* ========================================
+       BOTÃO FECHAR
+    ======================================== */
+
+    .close {
+      position: fixed;
+
+      top: 25px;
+      right: 25px;
+
+      z-index: 400;
+
+      width: 45px;
+      height: 45px;
+
+      border: none;
+
+      border-radius: 50%;
+
+      background:
+        rgba(20,20,30,.8);
+
+      color: white;
+
+      font-size: 22px;
+
+      cursor: pointer;
+
+      opacity: 0;
+
+      pointer-events: none;
+
+      transition:
+        opacity .4s ease;
+    }
+
+    .scene.expanded ~ .close {
+      opacity: 1;
+
+      pointer-events: auto;
+    }
+
+    /* ========================================
+       MOBILE
+    ======================================== */
+
+    @media (max-width: 600px) {
+
+      .scene {
+        transform:
+          scale(.82);
+      }
+
+      .scene.expanded {
+        transform: none;
+      }
+
+      .letter {
+        width: 280px;
+        height: 195px;
+      }
+
+      .narrator {
+        bottom: 15px;
+      }
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Fundo -->
+  <div
+    class="background"
+    id="background">
+  </div>
+
+
+  <!-- CENA -->
+  <div
+    class="scene"
+    id="scene">
+
+    <div
+      class="envelope"
+      id="envelope">
+
+      <!-- =========================
+           CARTA
+      ========================== -->
+
+      <div class="letter">
+
+        <div class="letter-content">
+
+          <img
+            class="letter-image"
+            src="convite.jpg"
+            alt="Convite dourado"
+          >
+
+        </div>
+
+      </div>
+
+
+      <!-- Corpo -->
+      <div class="envelope-body"></div>
+
+
+      <!-- Aba -->
+      <div class="flap"></div>
+
+
+      <!-- Selo -->
+      <div class="seal">
+        ♥
+      </div>
+
+    </div>
+
+
+    <div class="hint">
+      Toque para abrir
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       BOTÃO NARRADOR
+  ========================== -->
+
+  <button
+    class="narrator"
+    id="narrator">
+
+    <span id="narratorIcon">
+      🔊
+    </span>
+
+    <span id="narratorText">
+      Ouvir convite
+    </span>
+
+  </button>
+
+
+  <!-- FECHAR -->
+  <button
+    class="close"
+    id="close">
+
+    ×
+
+  </button>
+
+
+  <script>
+
+    /* ========================================
+       ELEMENTOS
+    ======================================== */
+
+    const scene =
+      document.getElementById("scene");
+
+    const envelope =
+      document.getElementById("envelope");
+
+    const closeButton =
+      document.getElementById("close");
+
+    const narrator =
+      document.getElementById("narrator");
+
+    const narratorText =
+      document.getElementById("narratorText");
+
+    const narratorIcon =
+      document.getElementById("narratorIcon");
+
+    const background =
+      document.getElementById("background");
+
+
+    let opened = false;
+
+    let speaking = false;
+
+
+    /* ========================================
+       TEXTO DO CONVITE
+       
+       ALTERE AQUI!
+    ======================================== */
+
+    const mensagem = `
+      Você está convidado.
+
+      Uma ocasião especial merece
+      um convite especial.
+
+      Gostaria muito de ter você comigo
+      para celebrar este momento.
+
+      Dia 15 de Dezembro,
+      às 20 horas.
+
+      Será uma noite inesquecível.
+    `;
+
+
+    /* ========================================
+       CRIAR PARTÍCULAS
+    ======================================== */
+
+    for (let i = 0; i < 40; i++) {
+
+      const particle =
+        document.createElement("div");
+
+      particle.className =
+        "particle";
+
+      particle.style.left =
+        Math.random() * 100 + "%";
+
+      particle.style.top =
+        Math.random() * 100 + "%";
+
+      particle.style.animationDelay =
+        Math.random() * 7 + "s";
+
+      particle.style.animationDuration =
+        5 + Math.random() * 7 + "s";
+
+      background.appendChild(particle);
+    }
+
+
+    /* 
+       EFEITO 3D DO MOUSE
+    */
+
+    document.addEventListener(
+      "mousemove",
+      (event) => {
+
+        if (opened) return;
+
+        const x =
+          (event.clientX /
+            window.innerWidth - .5) * 2;
+
+        const y =
+          (event.clientY /
+            window.innerHeight - .5) * 2;
+
+        envelope.style.transform = `
+          rotateX(${-y * 8}deg)
+          rotateY(${x * 10}deg)
+          translateY(-5px)
+        `;
+
+      }
+    );
+
+
+    /* ========================================
+       ABRIR CONVITE
+    ======================================== */
+
+    envelope.addEventListener(
+      "click",
+      () => {
+
+        if (opened) return;
+
+        opened = true;
+
+        scene.classList.add("open");
+
+
+        /*
+          Primeiro:
+          abre o envelope.
+
+          Depois:
+          expande a carta.
+        */
+
+        setTimeout(() => {
+
+          scene.classList.add("expanded");
+
+        }, 1500);
+
+
+        /*
+          O narrador aparece somente
+          depois que a carta terminou
+          de expandir.
+        */
+
+        setTimeout(() => {
+
+          narrator.classList.add(
+            "visible"
+          );
+
+        }, 2900);
+
+      }
+    );
+
+
+    /* ========================================
+       NARRADOR
+    ======================================== */
+
+    narrator.addEventListener(
+      "click",
+      () => {
+
+        /*
+          Se estiver falando,
+          para.
+        */
+
+        if (speaking) {
+
+          speechSynthesis.cancel();
+
+          speaking = false;
+
+          narrator.classList.remove(
+            "playing"
+          );
+
+          narratorIcon.textContent =
+            "🔊";
+
+          narratorText.textContent =
+            "Ouvir convite";
+
+          return;
+        }
+
+
+        /*
+          Cria a fala.
+        */
+
+        const speech =
+          new SpeechSynthesisUtterance(
+            mensagem
+          );
+
+
+        /*
+          Português do Brasil.
+        */
+
+        speech.lang =
+          "pt-BR";
+
+
+        /*
+          Velocidade.
+        */
+
+        speech.rate =
+          0.9;
+
+
+        /*
+          Tom.
+        */
+
+        speech.pitch =
+          1;
+
+
+        /*
+          Volume.
+        */
+
+        speech.volume =
+          1;
+
+
+        /*
+          Começou a falar.
+        */
+
+        speech.onstart = () => {
+
+          speaking = true;
+
+          narrator.classList.add(
+            "playing"
+          );
+
+          narratorIcon.textContent =
+            "⏹";
+
+          narratorText.textContent =
+            "Parar narração";
+
+        };
+
+
+        /*
+          Terminou.
+        */
+
+        speech.onend = () => {
+
+          speaking = false;
+
+          narrator.classList.remove(
+            "playing"
+          );
+
+          narratorIcon.textContent =
+            "🔊";
+
+          narratorText.textContent =
+            "Ouvir convite";
+
+        };
+
+
+        /*
+          Se der erro.
+        */
+
+        speech.onerror = () => {
+
+          speaking = false;
+
+          narrator.classList.remove(
+            "playing"
+          );
+
+          narratorIcon.textContent =
+            "🔊";
+
+          narratorText.textContent =
+            "Ouvir convite";
+
+        };
+
+
+        /*
+          Fala.
+        */
+
+        speechSynthesis.cancel();
+
+        speechSynthesis.speak(
+          speech
+        );
+
+      }
+    );
+
+
+    /* ========================================
+       FECHAR CONVITE
+    ======================================== */
+
+    closeButton.addEventListener(
+      "click",
+      (event) => {
+
+        event.stopPropagation();
+
+
+        /*
+          Para o narrador se estiver ativo.
+        */
+
+        speechSynthesis.cancel();
+
+        speaking = false;
+
+
+        narrator.classList.remove(
+          "visible",
+          "playing"
+        );
+
+        narratorIcon.textContent =
+          "🔊";
+
+        narratorText.textContent =
+          "Ouvir convite";
+
+
+        /*
+          Volta a carta.
+        */
+
+        scene.classList.remove(
+          "expanded"
+        );
+
+
+        /*
+          Depois fecha o envelope.
+        */
+
+        setTimeout(() => {
+
+          scene.classList.remove(
+            "open"
+          );
+
+          opened = false;
+
+          envelope.style.transform =
+            "";
+
+        }, 1000);
+
+      }
+    );
+
+
+    /* ========================================
+       SUPORTE A TOUCH
+    ======================================== */
+
+    document.addEventListener(
+      "touchmove",
+      (event) => {
+
+        if (opened) return;
+
+        const touch =
+          event.touches[0];
+
+        const x =
+          (touch.clientX /
+            window.innerWidth - .5) * 2;
+
+        const y =
+          (touch.clientY /
+            window.innerHeight - .5) * 2;
+
+        envelope.style.transform = `
+          rotateX(${-y * 5}deg)
+          rotateY(${x * 7}deg)
+        `;
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>
